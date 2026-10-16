@@ -447,6 +447,17 @@ def main():
     if os.path.exists(ak):
         N["nAudit"] = str(sum(1 for _ in csv.DictReader(open(ak))))
 
+    E11 = load("exp11_aug_inflation.json")
+    if E11:
+        g = [E11[k]["gain"] for k in SIM if k in E11]
+        N["augSimGainLo"], N["augSimGainHi"] = "%.2f" % min(g), "%.2f" % max(g)
+        jac = E11["surface: token Jaccard"]
+        N["augJacHuman"], N["augJacAug"] = "%.3f" % jac["r_human"], "%.3f" % jac["r_aug"]
+        N["augNliGain"] = "%.2f" % E11[NLI]["gain"]
+        N["augJudgeGain"] = "%.2f" % E11[JUDGE]["gain"]
+        ln = E11["surface: -|len diff|"]
+        N["augLenHuman"], N["augLenAug"] = "%.3f" % ln["r_human"], "%.3f" % ln["r_aug"]
+
     E10 = load("exp10_judge_controls.json")
     if E10:
         for tag, mac in (("deepseek", "ds"), ("llama", "llama")):

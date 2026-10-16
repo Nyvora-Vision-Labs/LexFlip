@@ -646,6 +646,19 @@ $r$ and the RMSE of a metric improve and worsen together. Here the augmentation
 affects training only, and we report the three diagnostic regimes separately as
 pass rates.
 
+\rev{We tested this mechanism directly, with no training involved. On each of
+the ten test splits, we correlated every untrained scorer with the human label
+twice. The first time uses the human items only. The second adds one identical
+pair (label $10$) and one unrelated pair (label $1$) per test item, the mixture
+of \textsc{DA}. The added pairs raise $r$ by $\augSimGainLo$ to $\augSimGainHi$
+for every similarity metric, by $\augNliGain$ for bidirectional NLI and by
+$\augJudgeGain$ for the DeepSeek judge. Token Jaccard rises from
+$\augJacHuman$ to $\augJacAug$. The length feature, the strongest scorer on
+human items, falls from $\augLenHuman$ to $\augLenAug$, so the augmented set
+also reverses the ranking. A gap of about $0.2$ between our retrained baseline
+and the published correlation is well within this effect. We cannot confirm
+that it is the cause without the original evaluation set.}
+
 The augmentation is sized to the training split, which has $178$ human pairs.
 \textbf{DA} adds $178$ identical pairs (label $10$) and $178$ unrelated pairs
 (label $1$). The mixture therefore has two augmented items per human item.
@@ -1112,9 +1125,9 @@ measure. We do not interpret it as legal severity.
 
 \paragraph{The judge as a sixth annotator}
 The judge rates on the annotators' scale, so we can place it inside the panel
-and not only beside the metrics. Its mean rating is $\judgeMeanRating$. The
-human panel spans $\strictMean$ to $\lenientMean$, so the judge is more lenient
-than any human and far less dispersed. Yet its mean correlation with the five
+and not only beside the metrics. Its mean rating is $\judgeMeanRating$. \rev{The two annotator groups average $\strictMean$ and
+$\lenientMean$, and the individual annotators average $4.33$ to $7.72$. The
+judge is therefore more lenient than any human and far less dispersed.} Yet its mean correlation with the five
 annotators is $\judgeHumanR$, higher than the mean human-to-human correlation
 of $\humanHumanR$. Adding it as a sixth coder nonetheless \emph{lowers} ordinal
 $\alpha$ from $\alphaOrd$ to $\judgeAlphaPanel$. It tracks the consensus without
