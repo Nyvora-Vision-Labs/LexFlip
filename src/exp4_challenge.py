@@ -1,13 +1,13 @@
-"""Experiment 4: LEGALEDIT -- do metrics notice a minimal edit that flips the law?
+"""Experiment 4: LEXFLIP -- do metrics notice a minimal edit that flips the law?
 
 Three probe sets over the same sentence pool, so surface similarity is held
 roughly constant while legal meaning varies:
 
   identical   (s, s)                  legal meaning preserved      target high
-  legaledit   (s, minimal_legal_edit) legal meaning FLIPPED        target low
+  lexflip   (s, minimal_lexflip_edit) legal meaning FLIPPED        target low
   unrelated   (s, other legal sent.)  no shared meaning            target low
 
-A metric that scores `legaledit` as high as `identical` is measuring lexical
+A metric that scores `lexflip` as high as `identical` is measuring lexical
 overlap, not legal meaning -- regardless of how well it correlates with human
 judgment on ordinary simplifications.
 """
@@ -15,7 +15,7 @@ import json, os, sys, pickle
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import load_pairs
-from augment import legal_edits, unrelated_pairs, tier, _sents
+from augment import lexflip_edits, unrelated_pairs, tier, _sents
 import stats_utils as su
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -25,7 +25,7 @@ OUT = os.path.join(ROOT, "results"); os.makedirs(OUT, exist_ok=True)
 ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
 rng = np.random.default_rng(7)
 pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-ED = legal_edits(pool, seed=7, per_sentence=1)
+ED = lexflip_edits(pool, seed=7, per_sentence=1)
 print(f"probe pool={len(pool)} legal edits={len(ED)} "
       f"(tier1={sum(tier(r)==1 for _,_,r in ED)})")
 
@@ -102,8 +102,8 @@ for name, v in S.items():
     lo, hi = float(np.min(v)), float(np.max(v))
     nz = lambda a: (a - lo) / (hi - lo + 1e-12)           # 0-1 for comparability
     rows[name] = dict(
-        identical=float(nz(i_).mean()), legaledit=float(nz(e_).mean()),
-        legaledit_t1=float(nz(e_[T1]).mean()), unrelated=float(nz(u_).mean()),
+        identical=float(nz(i_).mean()), lexflip=float(nz(e_).mean()),
+        lexflip_t1=float(nz(e_[T1]).mean()), unrelated=float(nz(u_).mean()),
         # discrimination: does the metric rank identical strictly above the edit?
         discrim=float((i_ > e_).mean()),
         # margin as a fraction of the identical-vs-unrelated dynamic range
@@ -123,5 +123,5 @@ print(f"\n{'metric':32s} {'ident':>6s} {'edit':>6s} {'edit_t1':>7s} {'unrel':>6s
 print("-" * 92)
 for k in sorted(rows, key=lambda k: -rows[k]["margin_frac"]):
     r = rows[k]
-    print(f"{k:32s} {r['identical']:6.3f} {r['legaledit']:6.3f} {r['legaledit_t1']:7.3f} "
+    print(f"{k:32s} {r['identical']:6.3f} {r['lexflip']:6.3f} {r['lexflip_t1']:7.3f} "
           f"{r['unrelated']:6.3f} | {r['discrim']*100:7.1f}% {r['margin_frac']:11.3f}")

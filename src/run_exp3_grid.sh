@@ -20,7 +20,7 @@ cd "$(dirname "$0")"
 TAG="${TAG:-}"
 GROUPED="${GROUPED:-}"
 SEEDS="${SEEDS:-42 43 44 45 46}"
-CONFIGS="${CONFIGS:-JudgeBERT (repro)|JudgeBERT-Dist (soft labels)|JudgeBERT-Annot (5 heads)|JudgeBERT-MT (+charact.)|JudgeBERT-Quantile (tau=.25)|JudgeBERT-DA (repro)|JudgeBERT-DA+LegalEdit}"
+CONFIGS="${CONFIGS:-JudgeBERT (repro)|JudgeBERT-Dist (soft labels)|JudgeBERT-Annot (5 heads)|JudgeBERT-MT (+charact.)|JudgeBERT-Quantile (tau=.25)|JudgeBERT-DA (repro)|JudgeBERT-DA+LexFlip}"
 
 JSON="../results/exp3_train${TAG}.json"
 LOG="../results/exp3_run${TAG}.log"

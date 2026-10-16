@@ -1,0 +1,21 @@
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrrr}
+\toprule
+& \textsc{LexFlip} & \multicolumn{2}{c}{neutral edit} & \multicolumn{2}{c}{paraphrase} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Metric & margin & drop & select. & drop & select. \\
+\midrule
+NLI-bidirectional (min) & 0.625 & -0.021 & 0.646 & 0.056 & 0.649 \\
+NLI-bwd (no omission) & 0.451 & -0.047 & 0.498 & 0.004 & 0.504 \\
+NLI-fwd (no hallucination) & 0.390 & -0.056 & 0.446 & -0.124 & 0.569 \\
+Judge: DeepSeek-chat ($K{=}5$) & 0.353 & 0.000 & 0.352 & 0.174 & 0.178 \\
+Judge: Llama-3.3-70B ($K{=}5$) & 0.104 & 0.001 & 0.104 & 0.028 & 0.078 \\
+BERTScore-CamemBERTv2 & 0.018 & 0.022 & -0.004 & 0.466 & -0.442 \\
+BERTScore-CamemBERTv2-Recall & 0.018 & 0.023 & -0.005 & 0.485 & -0.461 \\
+BERTScore-FlauBERT & 0.029 & 0.034 & -0.005 & 0.562 & -0.525 \\
+LaBSE & 0.034 & 0.004 & 0.030 & 0.190 & -0.148 \\
+Sentence-CamemBERT & 0.022 & 0.006 & 0.016 & 0.214 & -0.189 \\
+Para-mUSE-mpnet & 0.021 & 0.002 & 0.018 & 0.123 & -0.092 \\
+mE5-base & 0.030 & 0.007 & 0.023 & 0.311 & -0.275 \\
+\bottomrule
+\end{tabular}

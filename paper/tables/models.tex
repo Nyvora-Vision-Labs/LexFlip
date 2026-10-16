@@ -1,7 +1,7 @@
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrrr}
 \toprule
-Model & $r$ & $\rho$ & RMSE & over\% & ident.\ & unrel.\ & \multicolumn{2}{c}{\textsc{LegalEdit}} \\
+Model & $r$ & $\rho$ & RMSE & over\% & ident.\ & unrel.\ & \multicolumn{2}{c}{\textsc{LexFlip}} \\
 \cmidrule(lr){8-9}
  &  &  &  &  & pass & pass & false-acc.\ & margin \\
 \midrule
@@ -12,7 +12,7 @@ JudgeBERT-Quantile (tau=.25) & 0.553$_{\pm0.06}$ & 0.377 & 3.28 & 9.9 & 0 & 0 & 
 JudgeBERT-MT (+charact.) & 0.519$_{\pm0.06}$ & 0.232 & 2.51 & 26.3 & 0 & 0 & 0 & -- \\
 \midrule
 JudgeBERT-DA & 0.192$_{\pm0.25}$ & 0.112 & 2.31 & 42.5 & 0 & 77 & 18 & 0.019 \\
-JudgeBERT-DA+LegalEdit & 0.122$_{\pm0.10}$ & 0.174 & 2.60 & 35.3 & 0 & 69 & 0 & 0.051 \\
+JudgeBERT-DA+LexFlip & 0.122$_{\pm0.10}$ & 0.174 & 2.60 & 35.3 & 0 & 69 & 0 & 0.051 \\
 \midrule
 \emph{NLI-bidirectional} (untrained) & 0.395 & 0.405 & 2.22 & 46.6 & 1 & -- & -- & \emph{0.670} \\
 \textbf{Human ceiling} & \textbf{0.597} & 0.620 & 3.27 & -- & -- & -- & -- & -- \\

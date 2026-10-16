@@ -1,0 +1,44 @@
+{
+ "deepseek": {
+  "forward_asym": {
+   "doit_to_peut": 4.724390243902439,
+   "peut_to_doit": 8.021621621621623,
+   "gap": 3.297231377719184
+  },
+  "swapped_asym": {
+   "doit_to_peut": 4.804878048780488,
+   "peut_to_doit": 6.0,
+   "gap": 1.1951219512195124
+  },
+  "swapped_edit_mean": 5.914209115281501,
+  "forward_edit_mean": 6.6916890080428955,
+  "order_effect_r": 0.7373692590844718
+ },
+ "llama": {
+  "r_full": 0.717688157675727,
+  "r_cal": 0.7094807778544785,
+  "r_cal_sd": 0.0434507221585103,
+  "mean_rating": 9.174410774410775,
+  "identical": 10.0,
+  "lexflip": 9.047721179624665,
+  "unrelated": 1.0369973190348525,
+  "margin": 0.10624551328068917,
+  "margin_t1": 0.11192965596029301,
+  "discrim": 0.903485254691689,
+  "ties": 0.09651474530831099,
+  "forward_asym": {
+   "doit_to_peut": 9.012195121951219,
+   "peut_to_doit": 9.209009009009009,
+   "gap": 0.19681388705778957
+  },
+  "swapped_asym": {
+   "doit_to_peut": 9.017073170731708,
+   "peut_to_doit": 9.374774774774774,
+   "gap": 0.3577016040430667
+  },
+  "swapped_edit_mean": 9.216666666666667,
+  "forward_edit_mean": 9.047721179624665,
+  "order_effect_r": 0.7074388140825045,
+  "swap_n_scored": 372
+ }
+}

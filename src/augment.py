@@ -1,15 +1,15 @@
-"""Sanity-check pairs and the new LEGALEDIT challenge set.
+"""Sanity-check pairs and the new LEXFLIP challenge set.
 
 Three regimes, deliberately chosen so surface similarity and legal meaning
 dissociate:
 
   identical   high surface similarity, meaning fully preserved   -> gold 10
-  legaledit   high surface similarity, legal meaning FLIPPED     -> gold  1
+  lexflip   high surface similarity, legal meaning FLIPPED     -> gold  1
   unrelated   low  surface similarity, no shared meaning         -> gold  1
 
 The original paper only used `identical` and `unrelated`; those two are jointly
 solvable by any lexical-overlap function, which is why every embedding metric
-"passes" the identical check. `legaledit` is the discriminating case.
+"passes" the identical check. `lexflip` is the discriminating case.
 """
 import json, os, re, random
 import numpy as np
@@ -60,7 +60,7 @@ def unrelated_pairs(n, seed=0, max_rouge=0.25):
     return out
 
 
-# ---------------------------------------------------------------- legaledit --
+# ---------------------------------------------------------------- lexflip --
 # Each rule rewrites a legally decisive token. Every rewrite changes who is
 # bound, what is covered, how much, or whether a condition is conjunctive --
 # while leaving >90% of the surface form intact.
@@ -147,7 +147,7 @@ def _wellformed(s):
     return _BAD.search(s) is None
 
 
-def legal_edits(sentences, seed=0, per_sentence=1):
+def lexflip_edits(sentences, seed=0, per_sentence=1):
     """Return list of (original, perturbed, rule). Tier-1 rules are preferred."""
     rng = random.Random(seed)
     out = []
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from data import load_pairs
     P = load_pairs()
-    ed = legal_edits([p["original"] for p in P], per_sentence=1)
+    ed = lexflip_edits([p["original"] for p in P], per_sentence=1)
     print("legal edits:", len(ed), "/", len(P))
     import collections
     print(collections.Counter(r for _, _, r in ed).most_common())

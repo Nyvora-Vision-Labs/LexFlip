@@ -21,7 +21,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import load_pairs
 from splits import make_split, SEEDS
-from augment import legal_edits, unrelated_pairs, tier, _sents
+from augment import lexflip_edits, unrelated_pairs, tier, _sents
 import stats_utils as su
 import llm_judge as J
 from sklearn.isotonic import IsotonicRegression
@@ -36,7 +36,7 @@ y = np.array([p["label"] for p in P])
 ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
 rng = np.random.default_rng(7)
 pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-ED_FULL = legal_edits(pool, seed=7, per_sentence=1)
+ED_FULL = lexflip_edits(pool, seed=7, per_sentence=1)
 UN_FULL = unrelated_pairs(len(ED_FULL), seed=77)
 NF = len(ED_FULL)
 sub = np.sort(np.random.default_rng(SUB_SEED).choice(NF, size=N_EDITS, replace=False))
@@ -62,7 +62,7 @@ def stats(jc, jp):
     d["r_full"] = float(su.pearson(jc[ok], y[ok]))
     d["mean_rating"] = float(np.nanmean(jc))
     i_, e_, u_ = jp[:n], jp[n:2 * n], jp[2 * n:]
-    d["identical"] = float(np.nanmean(i_)); d["legaledit"] = float(np.nanmean(e_))
+    d["identical"] = float(np.nanmean(i_)); d["lexflip"] = float(np.nanmean(e_))
     d["unrelated"] = float(np.nanmean(u_))
     d["margin_frac"] = float((np.nanmean(i_) - np.nanmean(e_))
                              / max(1e-9, np.nanmean(i_) - np.nanmean(u_)))
@@ -147,7 +147,7 @@ for k in R:
     v = R[k]
     print("%-24s %6.3f+-%.3f %7.2f %8.3f %7.1f%% %7.2f %7.2f"
           % (k, v["r_cal_mean"], v["r_cal_sd"], v["mean_rating"], v["margin_frac"],
-             v["discrim"] * 100, v["legaledit"], v["asym"]))
+             v["discrim"] * 100, v["lexflip"], v["asym"]))
 
 print("\ndirectional asymmetry across every configuration:")
 for k, v in R.items():

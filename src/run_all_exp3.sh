@@ -9,10 +9,10 @@ set -u
 cd "$(dirname "$0")"
 
 # Grouped split: the three configurations the generalization comparison needs
-# (the reproduction, the original augmentation, and the LegalEdit-augmented
+# (the reproduction, the original augmentation, and the LexFlip-augmented
 # variant). The remaining heads differ in training target, not in how they
 # would respond to a change of source document.
-CONFIGS='JudgeBERT (repro)|JudgeBERT-DA (repro)|JudgeBERT-DA+LegalEdit' \
+CONFIGS='JudgeBERT (repro)|JudgeBERT-DA (repro)|JudgeBERT-DA+LexFlip' \
 GROUPED=1 TAG=_grouped ./run_exp3_grid.sh
 
 ./run_exp3_grid.sh

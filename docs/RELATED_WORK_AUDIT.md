@@ -1,4 +1,4 @@
-# Recent related work for LegalEdit (2024--2026)
+# Recent related work for LexFlip (2024--2026)
 
 Compiled 2026-09-01. Verified twice. Every entry was first checked by fetching
 its arXiv abstract page, then re-checked against the arXiv Atom API
@@ -205,7 +205,7 @@ Existing short-form metrics produce inconsistent scores for semantically
 equivalent summaries and degrade on information-dense claims. Recommends
 training on meaning-preserving variations.
 
-*Supports C3.* The mirror image of LegalEdit: they hold meaning fixed and move
+*Supports C3.* The mirror image of LexFlip: they hold meaning fixed and move
 form, we hold form fixed and move meaning. Citing both makes the dissociation
 argument symmetric and is a much better companion to MENLI than another 2021
 challenge set. Their legal-domain inclusion is a bonus.
@@ -220,7 +220,7 @@ highly sensitive to lexical information.
 
 *Supports C3.* Independent evidence, outside NLG metrics, that embedding
 representations confound lexical and semantic change. Exactly the confound
-LegalEdit dissociates. Good companion cite to `cripwell2024document` and
+LexFlip dissociates. Good companion cite to `cripwell2024document` and
 `kew2023bless`.
 
 ### Yang, Levy, Goldberg and Wallace (2026), *Compared to What? Baselines and Metrics for Counterfactual Prompting*
@@ -235,7 +235,7 @@ re-analysing MedPerturb, only 5 of 120 reported effects survive. Per-sample
 metrics are far more powerful than aggregate ones.
 
 *Supports C3, and is a caveat against us.* This is the sharpest methodological
-objection available to LegalEdit and we should raise it ourselves in
+objection available to LexFlip and we should raise it ourselves in
 Limitations. Our defence is real and worth stating: the margin is normalised
 against each metric's own identical-to-unrelated range, so the identical probe
 *is* a null-edit baseline, and our fluency filter bounds incidental variation.

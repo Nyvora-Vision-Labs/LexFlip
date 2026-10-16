@@ -1,0 +1,19 @@
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.27\columnwidth}p{0.68\columnwidth}@{}}
+\toprule
+Term & Meaning \\
+\midrule
+Metric, scorer & An automatic function that gives a number for how well a simplification $s$ keeps the meaning of an original $o$. \\
+Legal force & What a provision does in law: who it binds, whether it obliges or permits, what it covers, and how much. \\
+Dissociation & A test item in which two variables that usually move together are separated. Here, surface wording stays fixed and legal force changes, or the reverse. \\
+Token Jaccard & The share of distinct words two sentences have in common: $1$ for identical sentences, $0$ for no shared words. \\
+Margin & The share of a metric's own identical-to-unrelated range that it uses on a legally decisive edit. Higher is better. \\
+Specificity drop & The same quantity for an edit that keeps legal force. The ideal value is $0$. \\
+Selectivity & Margin minus specificity drop, on the same sentences. \\
+NLI (bidirectional) & Natural language inference: a model gives the probability that one sentence follows from another. We test both directions and keep the lower value. \\
+Pearson $r$, Spearman $\rho$ & Correlation of a metric with the human ratings: $1$ is perfect agreement, $0$ is none. $\rho$ uses ranks only. \\
+Human ceiling & The correlation one annotator reaches with the mean of the other four. It shows how well a single expert agrees with the panel. \\
+Isotonic calibration & A monotone map from a metric's raw score to the $1$--$10$ scale, fitted on training data. It changes the scale and keeps the ranking. \\
+Bootstrap interval & A $95\%$ range for a statistic, found by recomputing it on many resamples of the items. \\
+\bottomrule
+\end{tabular}

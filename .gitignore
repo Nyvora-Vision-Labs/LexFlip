@@ -15,3 +15,9 @@ __pycache__/
 *.blg
 *.aux
 *.out
+
+# Confidential peer review of manuscript #12050 (never publish)
+12050 Review Comments*.xlsx
+revision/12050 Review Comments*.xlsx
+revision/Response_to_Reviewers.*
+src/make_response.py

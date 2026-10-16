@@ -1,7 +1,7 @@
 """Experiment 6: can one scorer hold both ranks?
 
 Experiment 5 leaves the field split. The prompted judge is first of eleven on
-agreement with human ratings and fourth on the LEGALEDIT diagnostic;
+agreement with human ratings and fourth on the LEXFLIP diagnostic;
 bidirectional NLI is fourth and first. The two are not merely different in
 degree -- they fail in opposite directions, which is what makes combining them
 worth trying rather than merely convenient.
@@ -14,8 +14,8 @@ therefore hold throughout:
      every unsupervised metric.
   2. The diagnostic sees no labels at all. Whatever rule the corpus selects is
      transferred unchanged to the probes, exactly as it would be in deployment.
-     A combination that only looks good after peeking at LEGALEDIT would be
-     worthless, so LEGALEDIT never enters the fit.
+     A combination that only looks good after peeking at LEXFLIP would be
+     worthless, so LEXFLIP never enters the fit.
 
 Both components are first mapped to the 1-10 human scale by isotonic
 regression, which is monotone and so cannot change either parent's ranking.
@@ -28,7 +28,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import load_pairs
 from splits import make_split, SEEDS
-from augment import legal_edits, unrelated_pairs, tier, _sents
+from augment import lexflip_edits, unrelated_pairs, tier, _sents
 import stats_utils as su
 import llm_judge as J
 from sklearn.isotonic import IsotonicRegression
@@ -51,7 +51,7 @@ def judge_corpus(tag):
 ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
 rng = np.random.default_rng(7)
 pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-ED = legal_edits(pool, seed=7, per_sentence=1)
+ED = lexflip_edits(pool, seed=7, per_sentence=1)
 n = len(ED)
 ALL = ([dict(original=o, simplification=o) for o, _, _ in ED]
        + [dict(original=o, simplification=p) for o, p, _ in ED]
@@ -118,7 +118,7 @@ def evaluate(judge_c, judge_p, label):
     def diag(v):
         i_, e_, u_ = v[:n], v[n:2 * n], v[2 * n:]
         den = max(1e-9, (i_ - u_).mean())
-        return dict(identical=float(i_.mean()), legaledit=float(e_.mean()),
+        return dict(identical=float(i_.mean()), lexflip=float(e_.mean()),
                     unrelated=float(u_.mean()),
                     margin_frac=float((i_ - e_).mean() / den),
                     margin_frac_t1=float((i_[T1] - e_[T1]).mean()

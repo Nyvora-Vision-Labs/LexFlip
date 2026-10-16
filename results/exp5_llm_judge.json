@@ -54,8 +54,8 @@
   "diagnostic": {
     "n": 373,
     "identical": 10.0,
-    "legaledit": 6.6916890080428955,
-    "legaledit_t1": 6.307096774193549,
+    "lexflip": 6.6916890080428955,
+    "lexflip_t1": 6.307096774193549,
     "unrelated": 1.0568364611260055,
     "margin_frac": 0.369926254571617,
     "margin_frac_t1": 0.41200604621032183,
@@ -136,7 +136,7 @@
       "incoherence": 0.0,
       "counts": {}
     },
-    "legaledit": {
+    "lexflip": {
       "samples": 1865,
       "any_error": 0.7812332439678285,
       "incoherence": 0.5458445040214477,

@@ -28,7 +28,7 @@ percent of the tokens are untouched, the sentence stays fluent and statutory in
 register, and an obligation has become a permission. A metric that reads legal
 meaning must drop sharply; a metric that counts shared words cannot.
 
-**LegalEdit** is 373 such perturbations (310 tier 1) generated from two Quebec
+**LexFlip** is 373 such perturbations (310 tier 1) generated from two Quebec
 statutes, with mean token Jaccard 0.93 against their source and none below 0.75.
 Each is scored through a harness that takes an arbitrary scoring function, so
 untrained metrics, supervised regressors and prompted LLM judges are all
@@ -110,8 +110,8 @@ docs/       errata and re-analysis for the upstream corpus, and the citation aud
 
 ## The paper
 
-`paper/main.pdf` is the 8-page paper, including limitations, ethics and the
-17-entry bibliography. `paper/supplementary.pdf` is the 8-page supplement,
+`paper/main.pdf` is the 6-page paper, including limitations, ethics and the
+16-entry bibliography. `paper/supplementary.pdf` is the 8-page supplement,
 holding twelve numbered floats (Tables S1 to S10 and Figures S1 to S2) and the
 analyses the paper points at: the full calibrated baseline table, the per-metric
 margin plot, one example per perturbation rule, the agreement and ceiling
@@ -120,13 +120,17 @@ margin breakdown, the seven training variants, the Williams tests, the
 document-grouped comparison, the length-change strata, and the reproducibility
 statement.
 
-Build either with the standard four-pass sequence (the bibliography is numbered,
-so BibTeX has to run):
+Two passes each, so the numbered citations resolve. The reference lists are
+typeset directly from `paper/bib_main.tex` and `paper/bib_supp.tex` in the
+author-title-venue form of `paper/citations.md`, which is the authority for what
+each entry says, so BibTeX no longer runs. `paper/refs.bib` and
+`docs/RELATED_WORK_AUDIT.md` are kept as the earlier audited record, and are
+noted in `bib_main.tex` where the two disagree.
 
 ```bash
 cd paper
-pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
-pdflatex supplementary.tex && bibtex supplementary && pdflatex supplementary.tex && pdflatex supplementary.tex
+pdflatex main.tex && pdflatex main.tex
+pdflatex supplementary.tex && pdflatex supplementary.tex
 ```
 
 Tables and figures are generated, not hand-written: `src/make_tables.py` writes
@@ -134,7 +138,7 @@ Tables and figures are generated, not hand-written: `src/make_tables.py` writes
 the JSON in `results/`, so no number in the paper is typed by hand. The macros
 in `paper/numbers.tex` carry every figure quoted in prose for the same reason.
 
-Every one of the 17 references was verified against arXiv, DBLP, CrossRef or the
+Every one of the 16 references was verified against arXiv, DBLP, CrossRef or the
 ACL Anthology: identifiers fetched by ID, author lists diffed position by
 position, venues confirmed at the venue. `docs/RELATED_WORK_AUDIT.md` records the
 method and the four passes, including the errors earlier passes found and fixed.
@@ -148,7 +152,7 @@ cd src
 python3 exp1_ceiling.py         # agreement, human ceiling, structure of disagreement
 python3 exp2_baselines.py       # metric zoo and surface baselines, raw and calibrated
 ./run_all_exp3.sh               # both training grids: grouped split first, then random
-python3 exp4_challenge.py       # the LegalEdit diagnostic over every scorer
+python3 exp4_challenge.py       # the LexFlip diagnostic over every scorer
 python3 exp5_llm_judge.py       # prompted judge: panel position, self-consistency
 python3 exp5b_replication.py    # independent redraw of the judge, run 1 against run 2
 python3 exp6_hybrid.py          # judge x NLI combination rules (cached, no API cost)
@@ -164,7 +168,7 @@ then the random-split grid (seven configurations, five seeds, writing
 `results/exp3_train.json`). Either stage runs on its own; for the grouped one:
 
 ```bash
-CONFIGS='JudgeBERT (repro)|JudgeBERT-DA (repro)|JudgeBERT-DA+LegalEdit' \
+CONFIGS='JudgeBERT (repro)|JudgeBERT-DA (repro)|JudgeBERT-DA+LexFlip' \
 GROUPED=1 TAG=_grouped ./run_exp3_grid.sh
 ```
 
@@ -237,7 +241,7 @@ approximately. Report spreads over seeds, not single runs.
 | `splits.py` | The 60/10/30 splits (seeds 42 to 51), plus document-grouped splits that prevent source-form leakage. |
 | `features.py` | Ten trivial surface features: lengths, token and numeral overlap, modal, negation and connective deltas. |
 | `metrics_zoo.py` | French-capable baselines: BERTScore over CamemBERTv2 and FlauBERT (F1 and recall), sentence-embedding cosine (LaBSE, Sentence-CamemBERT, mpnet, mE5), and bidirectional mDeBERTa-XNLI entailment. |
-| `augment.py` | Identical and unrelated sanity pairs, and the LegalEdit perturbation set. Perturbations are screened by a French well-formedness check (elision, contraction, determiner-noun gender) so a metric cannot detect the edit by spotting disfluency; the check flags 0 of 400 unmodified source sentences. |
+| `augment.py` | Identical and unrelated sanity pairs, and the LexFlip perturbation set. Perturbations are screened by a French well-formedness check (elision, contraction, determiner-noun gender) so a metric cannot detect the edit by spotting disfluency; the check flags 0 of 400 unmodified source sentences. |
 | `model.py`, `train.py` | CamemBERTv2 regressor with scalar, distributional (KL over the rating histogram), annotator-aware (five heads) and quantile (pinball) objectives, plus an auxiliary characterization head. |
 | `stats_utils.py` | Bootstrap CIs, paired bootstrap tests, the Williams test, ordinal and nominal Krippendorff alpha, power analysis. |
 | `llm_judge.py` | Prompted LLM-as-judge, exposed with the metric-zoo signature so it drops into `exp2` and `exp4` unchanged. One request per pair so the judge never sees the probe condition, K samples per pair for self-consistency, every response cached to an append-only JSONL. Carries the three prompt wordings (v1 French rubric, v2 English rubric, v3 bare instruction) and the spend ceiling. |
@@ -284,11 +288,11 @@ the upstream raw export reproduces exactly the same labels and the same numbers.
 Anyone redistributing a copy of the raw export should run the script over it
 first.
 
-Note that git history still contains the pre-pseudonymisation copy of this file.
-Removing it from history requires a rewrite and a force-push, which has not been
-done.
+The repository history was rewritten on 16 October 2026 so that no commit
+contains the annotators' names: every historical copy of this file is the
+pseudonymised one.
 
-The statutes LegalEdit is generated from are public legal texts. The perturbed
+The statutes LexFlip is generated from are public legal texts. The perturbed
 sentences are deliberate misstatements of Quebec law, released as an evaluation
 artefact only and labelled as such in the distribution. They should not be quoted
 as statements of the law, and nothing here constitutes legal advice. A metric

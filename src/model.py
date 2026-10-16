@@ -2,7 +2,8 @@
 import numpy as np, torch, torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
 
-DEV = "mps" if torch.backends.mps.is_available() else "cpu"
+DEV = ("mps" if torch.backends.mps.is_available()
+       else "cuda" if torch.cuda.is_available() else "cpu")
 BASE = "almanach/camembertv2-base"
 
 

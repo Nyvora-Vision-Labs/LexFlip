@@ -1,14 +1,5 @@
 # Fdb version 4
-["bibtex main"] 1788493441.8344 "main.aux" "main.bbl" "main" 1788493442.25109 0
-  "./acl_natbib_unsrt.bst" 1788492376.84158 45724 fd3a8046a1e48e609f06d4a561bee39b ""
-  "./refs.bib" 1788493441.56672 19862 064fd1be5fb2d0187029fde367fdfc44 ""
-  "main.aux" 1788493442.18261 7155 8420c28a564fc9b696bf82d386f74415 "pdflatex"
-  (generated)
-  "main.bbl"
-  "main.blg"
-  (rewritten before read)
-["pdflatex"] 1788493441.84953 "/Users/gauurab/Documents/Projects/arxiv_extra_Step/LEGALEDIT/paper/main.tex" "main.pdf" "main" 1788493442.25118 0
-  "/Users/gauurab/Documents/Projects/arxiv_extra_Step/LEGALEDIT/paper/main.tex" 1788493314.39516 23728 cd220686062da6c32c9f95ac907f7984 ""
+["pdflatex"] 1788829258.80073 "main.tex" "main.pdf" "main" 1788829259.16378 0
   "/Users/gauurab/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/Users/gauurab/Library/TinyTeX/texmf-dist/fonts/tfm/adobe/courier/pcrr8r.tfm" 1136768653 1292 bd42be2f344128bff6d35d98474adfe3 ""
   "/Users/gauurab/Library/TinyTeX/texmf-dist/fonts/tfm/adobe/courier/pcrr8t.tfm" 1136768653 1384 4632f5e54900a7dadbb83f555bc61e56 ""
@@ -144,15 +135,16 @@
   "/Users/gauurab/Library/TinyTeX/texmf-var/web2c/pdftex/pdflatex.fmt" 1788319515 2253715 d390cda7bf71cc1de38e4f6d58ecb678 ""
   "/Users/gauurab/Library/TinyTeX/texmf.cnf" 1788319472 637 edd806fb06a89761a6034e1968af9017 ""
   "acl.sty" 1788470962.31847 11615 e2c027f483aa40e577ed34264c8b0655 ""
-  "figs/dissociation.pdf" 1788470962.32091 55317 e788afc2b8d4d2a889b4a1cf87271353 ""
-  "main.aux" 1788493442.18261 7155 8420c28a564fc9b696bf82d386f74415 "pdflatex"
-  "main.bbl" 1788493441.84809 4827 3a3f1b12ddbbf12bf3fea4a19ab7409e "bibtex main"
-  "main.out" 1788493442.18323 1020 eb0fe6a84a1e791b98de98e602496001 "pdflatex"
-  "main.tex" 1788493314.39516 23728 cd220686062da6c32c9f95ac907f7984 ""
-  "numbers.tex" 1788486294.22204 3650 603629de445608dd9275d3ed2df76388 ""
-  "tables/baselines_short.tex" 1788490051.40706 1115 3b76ff713235c2e4509932ea03492bb0 ""
-  "tables/challenge.tex" 1788486291.74829 998 2379ec96a1292d3c8409b51bc86c4845 ""
-  "tables/rules_short.tex" 1788491138.21571 620 8eab2a02defaeb8acd968e2596ec6eb8 ""
+  "bib_main.tex" 1788534799.11178 5690 97df4278ebc19b4377e2c195e5b7a73c ""
+  "figs/dissociation.pdf" 1788530108.64825 56532 72a0ace00732bde13219a48a8957eff2 ""
+  "figs/teaser.pdf" 1788530108.0911 32054 1596902a88c4414082a51da04d2b65ee ""
+  "main.aux" 1788829259.11228 8516 142157010d52349b063ebebf37a5f9d0 "pdflatex"
+  "main.out" 1788829259.11328 992 2b8cd350ece823be75c5ed3e59e3d456 "pdflatex"
+  "main.tex" 1788829251.36922 24325 7e4de8a63466c6669d8939aeba90dba3 ""
+  "numbers.tex" 1788530107.05283 3650 603629de445608dd9275d3ed2df76388 ""
+  "tables/baselines_short.tex" 1788530091.51906 1115 3b76ff713235c2e4509932ea03492bb0 ""
+  "tables/challenge.tex" 1788530104.42889 996 476ab209a6d6461b464f7df011d3a907 ""
+  "tables/rules_short.tex" 1788530091.52406 620 8eab2a02defaeb8acd968e2596ec6eb8 ""
   (generated)
   "main.aux"
   "main.log"

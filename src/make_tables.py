@@ -159,8 +159,8 @@ def nli_reference(tag):
 MODEL_ORDER = ["JudgeBERT (repro)", "JudgeBERT-Dist (soft labels)",
                "JudgeBERT-Annot (5 heads)", "JudgeBERT-Quantile (tau=.25)",
                "JudgeBERT-MT (+charact.)",
-               "JudgeBERT-DA (repro)", "JudgeBERT-DA+LegalEdit"]
-AUGMENTED = {"JudgeBERT-DA (repro)", "JudgeBERT-DA+LegalEdit"}
+               "JudgeBERT-DA (repro)", "JudgeBERT-DA+LexFlip"]
+AUGMENTED = {"JudgeBERT-DA (repro)", "JudgeBERT-DA+LexFlip"}
 
 # Config keys are the experiment's internal names; the paper presents this work
 # as an extension of JUDGEBERT rather than an outside reproduction of it, so the
@@ -169,7 +169,7 @@ MODEL_DISPLAY = {"JudgeBERT (repro)": "JudgeBERT-Scalar (baseline)",
                  "JudgeBERT-DA (repro)": "JudgeBERT-DA"}
 
 # Minimum identical-minus-unrelated gap, in points of the 1-10 scale, for the
-# LegalEdit margin ratio to be reported at all. See tab_models.
+# LexFlip margin ratio to be reported at all. See tab_models.
 MARGIN_MIN_RANGE = 1.0
 
 
@@ -192,7 +192,7 @@ def tab_models(tag=""):
     s = [COLSEP,
          "\\begin{tabular}{lrrrrrrrr}", "\\toprule",
          "Model & $r$ & $\\rho$ & RMSE & over\\% & ident.\\ & unrel.\\ & "
-         "\\multicolumn{2}{c}{\\textsc{LegalEdit}} \\\\",
+         "\\multicolumn{2}{c}{\\textsc{LexFlip}} \\\\",
          "\\cmidrule(lr){8-9}",
          " &  &  &  &  & pass & pass & false-acc.\\ & margin \\\\", "\\midrule"]
     A = lambda rs, k: (float(np.mean([d[k] for d in rs])), float(np.std([d[k] for d in rs])))
@@ -206,7 +206,7 @@ def tab_models(tag=""):
             s.append("\\midrule")
         r, rsd = A(rs, "r"); rho, _ = A(rs, "rho"); rm, _ = A(rs, "rmse")
         ov, _ = A(rs, "over"); ip, _ = A(rs, "identical_pass"); up, _ = A(rs, "unrelated_pass")
-        fa, _ = A(rs, "legaledit_false_accept")
+        fa, _ = A(rs, "lexflip_false_accept")
         # Margin as a fraction of the identical-to-unrelated range, defined
         # exactly as in the calibrated baseline table so the trained models are comparable
         # to the untrained baselines.
@@ -223,7 +223,7 @@ def tab_models(tag=""):
         for d in rs:
             den = d["identical_mean"] - d["unrelated_mean"]
             if den >= MARGIN_MIN_RANGE:
-                mf.append((d["identical_mean"] - d["legaledit_mean"]) / den)
+                mf.append((d["identical_mean"] - d["lexflip_mean"]) / den)
         mfv = float(np.mean(mf)) if mf else None
         s.append(f"{esc(MODEL_DISPLAY.get(name, name))} & {fmt(r)}$_{{\\pm{rsd:.2f}}}$ & {fmt(rho)} & {fmt(rm,2)} & "
                  f"{ov*100:.1f} & {ip*100:.0f} & {up*100:.0f} & {fa*100:.0f} & {fmt(mfv)} \\\\")
@@ -252,11 +252,11 @@ def tab_challenge():
     if not os.path.exists(f): return
     c = json.load(open(f))["rows"]
     s = [COLSEP, "\\begin{tabular}{lrrrrr}", "\\toprule",
-         "Metric & identical & \\textsc{LegalEdit} & unrelated & discrim.\\% & margin \\\\",
+         "Metric & identical & \\textsc{LexFlip} & unrelated & discrim.\\% & margin \\\\",
          "\\midrule"]
     for k in sorted(c, key=lambda k: -c[k]["margin_frac"]):
         v = c[k]
-        s.append(f"{DISPLAY.get(k) or esc(k)} & {fmt(v['identical'])} & {fmt(v['legaledit'])} & "
+        s.append(f"{DISPLAY.get(k) or esc(k)} & {fmt(v['identical'])} & {fmt(v['lexflip'])} & "
                  f"{fmt(v['unrelated'])} & {v['discrim']*100:.1f} & {fmt(v['margin_frac'])} \\\\")
     s += ["\\bottomrule", "\\end{tabular}"]
     W("challenge.tex", "\n".join(s))
@@ -286,12 +286,12 @@ def numbers():
     import sys as _s, os as _o
     _s.path.insert(0, _o.path.dirname(_o.path.abspath(__file__)))
     from data import load_pairs
-    from augment import legal_edits, _sents
+    from augment import lexflip_edits, _sents
     import re
     ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
     rng = np.random.default_rng(7)
     pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-    ED = legal_edits(pool, seed=7, per_sentence=1)
+    ED = lexflip_edits(pool, seed=7, per_sentence=1)
     tok = lambda t: set(re.findall(r"\w+", t.lower()))
     jac = [len(tok(o) & tok(p)) / len(tok(o) | tok(p)) for o, p, _ in ED]
     n["numedits"] = str(len(ED))
@@ -521,7 +521,7 @@ def tab_significance():
     return r_ref, len(y)
 
 
-# ------------------------------------------ Table: LegalEdit per-rule margins --
+# ------------------------------------------ Table: LexFlip per-rule margins --
 RULE_DISPLAY = {
     "modal_obligation_to_permission": "\\emph{doit} $\\rightarrow$ \\emph{peut}",
     "modal_permission_to_obligation": "\\emph{peut} $\\rightarrow$ \\emph{doit}",
@@ -581,16 +581,16 @@ def tab_rules():
     W("rules.tex", "\n".join(s))
 
 
-# --------------------------------------------- Table: LegalEdit examples --
+# --------------------------------------------- Table: LexFlip examples --
 def tab_examples(k=5):
     """Show the actual perturbations, with the changed span marked."""
     import sys as _s, os as _o, re, difflib
     _s.path.insert(0, _o.path.dirname(_o.path.abspath(__file__)))
-    from augment import legal_edits, _sents, tier
+    from augment import lexflip_edits, _sents, tier
     ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
     rng = np.random.default_rng(7)
     pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-    ED = legal_edits(pool, seed=7, per_sentence=1)
+    ED = lexflip_edits(pool, seed=7, per_sentence=1)
     seen, chosen = set(), []
     for o, p, r in ED:
         if r in seen or len(o) > 165:
@@ -637,7 +637,7 @@ def tab_examples(k=5):
 
 # ---------------------------------------------- numbers quoted in the prose --
 def _neural_margin_and_r():
-    """(calibrated r, LegalEdit margin) for the ten neural baselines."""
+    """(calibrated r, LexFlip margin) for the ten neural baselines."""
     C = J("exp4_challenge.json")["rows"]; B = J("exp2_baselines.json")
     out = {}
     for k in BASE_ORDER:
@@ -648,7 +648,7 @@ def _neural_margin_and_r():
 
 
 def _all_margin_and_r(): 
-    """(calibrated r, LegalEdit margin) for every scorer in Table challenge.
+    """(calibrated r, LexFlip margin) for every scorer in Table challenge.
 
     This is the set Figure dissociation plots, so it is the set the headline
     coefficient should be computed over. The two keys that differ between the
@@ -682,7 +682,7 @@ def _rho_ci(d, boot=10000, seed=0):
 
 
 def _dissociation_numbers(boot=10000, seed=0):
-    """Rank correlation between corpus correlation and LegalEdit margin.
+    """Rank correlation between corpus correlation and LexFlip margin.
 
     Reported over two metric sets, because they say different things and the
     paper quotes both. The ten neural baselines exclude the length feature and
@@ -746,7 +746,7 @@ def _rule_numbers():
     import pickle, collections, re
     import sys as _s, os as _o
     _s.path.insert(0, _o.path.dirname(_o.path.abspath(__file__)))
-    from augment import legal_edits, _sents
+    from augment import lexflip_edits, _sents
     meta = J("exp4_challenge.json")
     rules = np.array(meta["rules"]); n = meta["n"]
     S = pickle.load(open(os.path.join(RES, "exp4_raw.pkl"), "rb"))
@@ -765,7 +765,7 @@ def _rule_numbers():
     ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
     rng = np.random.default_rng(7)
     pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-    ED = legal_edits(pool, seed=7, per_sentence=1)
+    ED = lexflip_edits(pool, seed=7, per_sentence=1)
     size = collections.defaultdict(list)
     for o, p, r in ED:
         size[r].append(abs(len(p) - len(o)))
@@ -804,8 +804,8 @@ def _judge_numbers():
     n["judgeMarginTierOne"] = f"{A['diagnostic']['margin_frac_t1']:.3f}"
     n["judgeDiscrim"] = f"{A['diagnostic']['discrim']*100:.1f}"
     n["judgeIdent"] = f"{A['diagnostic']['identical']:.2f}"
-    n["judgeEdit"] = f"{A['diagnostic']['legaledit']:.2f}"
-    n["judgeEditTierOne"] = f"{A['diagnostic']['legaledit_t1']:.2f}"
+    n["judgeEdit"] = f"{A['diagnostic']['lexflip']:.2f}"
+    n["judgeEditTierOne"] = f"{A['diagnostic']['lexflip_t1']:.2f}"
     n["judgeUnrel"] = f"{A['diagnostic']['unrelated']:.2f}"
     n["judgeAlphaSelf"] = f"{A['self_consistency']['alpha_self']:.3f}"
     n["judgeKone"] = f"{A['self_consistency']['r_by_k'][0]:.3f}"
@@ -814,8 +814,8 @@ def _judge_numbers():
     n["judgeHumanR"] = f"{A['panel']['mean_judge_human_r']:.3f}"
     n["humanHumanR"] = f"{A['panel']['mean_human_human_r']:.3f}"
     n["judgeAlphaPanel"] = f"{A['panel']['alpha_6']:.3f}"
-    n["judgeErrEdit"] = f"{A['errors']['legaledit']['any_error']*100:.1f}"
-    n["judgeErrIncoh"] = f"{A['errors']['legaledit']['incoherence']*100:.1f}"
+    n["judgeErrEdit"] = f"{A['errors']['lexflip']['any_error']*100:.1f}"
+    n["judgeErrIncoh"] = f"{A['errors']['lexflip']['incoherence']*100:.1f}"
     n["judgeErrIdent"] = f"{A['errors']['identical']['any_error']*100:.1f}"
     n["judgeCalls"] = f"{A['usage']['total']['calls']:,}".replace(",", "{,}")
     n["judgeCost"] = f"{A['usage']['est_usd']:.2f}"
@@ -856,7 +856,7 @@ def _judge_numbers():
             if lab in C:
                 n["prompt%sMargin" % key] = f"{C[lab]['margin_frac']:.3f}"
                 n["prompt%sR" % key] = f"{C[lab]['r_cal_mean']:.3f}"
-                n["prompt%sEdit" % key] = f"{C[lab]['legaledit']:.2f}"
+                n["prompt%sEdit" % key] = f"{C[lab]['lexflip']:.2f}"
         if "reasoner (K=1)" in C and "chat (K=1)" in C:
             n["reasonerR"] = f"{C['reasoner (K=1)']['r_cal_mean']:.3f}"
             n["reasonerMargin"] = f"{C['reasoner (K=1)']['margin_frac']:.3f}"
@@ -899,7 +899,7 @@ def tab_judge():
          "Configuration & $r$ & edit & margin & discrim.\\% & asym. \\\\", "\\midrule"]
     for k in [k for k in ORDER if k in C] + [k for k in C if k not in ORDER]:
         v = C[k]
-        s.append(f"{DISP.get(k, esc(k))} & {fmt(v['r_cal_mean'])} & {fmt(v['legaledit'],2)} & "
+        s.append(f"{DISP.get(k, esc(k))} & {fmt(v['r_cal_mean'])} & {fmt(v['lexflip'],2)} & "
                  f"{fmt(v['margin_frac'])} & {v['discrim']*100:.1f} & {fmt(v['asym'],2)} \\\\")
     s += ["\\bottomrule", "\\end{tabular}"]
     W("judge.tex", "\n".join(s))

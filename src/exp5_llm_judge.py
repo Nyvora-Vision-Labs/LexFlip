@@ -9,7 +9,7 @@ scorer. This script asks the three questions those tables cannot answer:
   B. Self-consistency. A sampled judge has its own variance. We measure the
      ordinal alpha *among its own K samples* -- directly comparable to the
      humans' alpha on the same scale -- and how much averaging K samples buys.
-  C. Diagnostic behaviour. On LEGALEDIT, the raw 1-10 output is interpretable
+  C. Diagnostic behaviour. On LEXFLIP, the raw 1-10 output is interpretable
      in a way a cosine is not, so we report the actual scores it assigns to
      identical, edited and unrelated probes, broken out by tier and by rule,
      plus what the judge *says* is wrong -- whether it names the error type the
@@ -20,7 +20,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import load_pairs, ANNOTATORS
 from splits import make_split, SEEDS
-from augment import legal_edits, unrelated_pairs, tier, _sents
+from augment import lexflip_edits, unrelated_pairs, tier, _sents
 import stats_utils as su
 import llm_judge as J
 
@@ -113,14 +113,14 @@ R["corpus"] = dict(r_raw_mean=float(np.mean(raw_r)), r_raw_sd=float(np.std(raw_r
 
 # ======================================================= C. the diagnostic =====
 print("\n" + "=" * 78)
-print("C. LEGALEDIT DIAGNOSTIC")
+print("C. LEXFLIP DIAGNOSTIC")
 print("=" * 78)
 
 # rebuild exp4's probe set exactly (same seeds, same construction)
 ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
 rng = np.random.default_rng(7)
 pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-ED = legal_edits(pool, seed=7, per_sentence=1)
+ED = lexflip_edits(pool, seed=7, per_sentence=1)
 n = len(ED)
 ident = [dict(original=o, simplification=o) for o, _, _ in ED]
 edit = [dict(original=o, simplification=p) for o, p, _ in ED]
@@ -135,7 +135,7 @@ i_, e_, u_ = ve[:n], ve[n:2 * n], ve[2 * n:]
 
 print("\nmean raw judge score (1-10 scale, directly interpretable):")
 print("   identical   %5.2f" % i_.mean())
-print("   legaledit   %5.2f   (tier-1 only: %.2f)" % (e_.mean(), e_[T1].mean()))
+print("   lexflip   %5.2f   (tier-1 only: %.2f)" % (e_.mean(), e_[T1].mean()))
 print("   unrelated   %5.2f" % u_.mean())
 margin = float((i_ - e_).mean() / max(1e-9, (i_ - u_).mean()))
 discrim = float((i_ > e_).mean())
@@ -148,8 +148,8 @@ m1 = float((i_[T1] - e_[T1]).mean() / max(1e-9, (i_[T1] - u_[T1]).mean()))
 m2 = float((i_[~T1] - e_[~T1]).mean() / max(1e-9, (i_[~T1] - u_[~T1]).mean()))
 print("   margin fraction, tier-1 %.3f   tier-2 %.3f" % (m1, m2))
 
-R["diagnostic"] = dict(n=n, identical=float(i_.mean()), legaledit=float(e_.mean()),
-                       legaledit_t1=float(e_[T1].mean()), unrelated=float(u_.mean()),
+R["diagnostic"] = dict(n=n, identical=float(i_.mean()), lexflip=float(e_.mean()),
+                       lexflip_t1=float(e_[T1].mean()), unrelated=float(u_.mean()),
                        margin_frac=margin, margin_frac_t1=m1, margin_frac_t2=m2,
                        discrim=discrim, ident_minus_edit=float(d),
                        ident_minus_edit_ci=[float(blo), float(bhi)])
@@ -191,7 +191,7 @@ def err_stats(sl):
     return tot, flagged, named, cnt
 
 print("\nerror types the judge reports (over all %d samples per probe set):" % K)
-for label, sl in [("identical", slice(0, n)), ("legaledit", slice(n, 2 * n)),
+for label, sl in [("identical", slice(0, n)), ("lexflip", slice(n, 2 * n)),
                   ("unrelated", slice(2 * n, 3 * n))]:
     tot, flagged, named, cnt = err_stats(sl)
     print("   %-10s any error %5.1f%%   names INCOHERENCE %5.1f%%   %s"

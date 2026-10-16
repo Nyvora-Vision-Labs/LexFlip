@@ -1,5 +1,9 @@
 \documentclass[11pt]{article}
 % Numbered citations: [1], [2] in the text and a numbered reference list.
+% The list itself is typeset directly from bib_main.tex rather than by
+% BibTeX, so the style selection below only matters if \bibliography
+% is ever restored; natbib still supplies the numbers and the author
+% names \citet prints, reading both from the bracketed \bibitem labels.
 % acl.sty loads natbib itself, so the style options have to be passed to the
 % package before that happens.
 \PassOptionsToPackage{numbers,square,comma,sort&compress}{natbib}
@@ -61,7 +65,7 @@
 
 \input{numbers}
 
-\title{\textsc{LegalEdit}: A Dissociation Diagnostic for\\Legal Meaning Preservation Metrics}
+\title{\textsc{LexFlip}: A Dissociation Diagnostic for\\Legal Meaning Preservation Metrics}
 
 \author{Gaurab Baral \\
   University of Cincinnati \\
@@ -98,7 +102,7 @@ current use cannot establish that it does: requiring an identical pair to score
 highest and an unrelated pair lowest moves lexical overlap and legal force
 together, so any monotone function of token overlap satisfies both. Our remedy
 is a \emph{dissociation}, an item holding surface form fixed while legal force
-moves. We release \textsc{LegalEdit}, \numedits\ minimal perturbations of Quebec
+moves. We release \textsc{LexFlip}, \numedits\ minimal perturbations of Quebec
 statutory French that reverse legal force while preserving \meanjaccard\ of the
 tokens, with a harness scoring metrics, regressors and prompted judges alike.
 The seven embedding and BERTScore metrics we test spend only
@@ -108,6 +112,18 @@ identical-pair check would disqualify. On \textsc{FrJudge}, against a measured
 human ceiling of $r=\ceilR$, a bare length feature outscores every semantic
 metric and has the lowest margin we measure.
 \end{abstract}
+
+\begin{figure}[t]\centering
+\IfFileExists{figs/teaser.pdf}{\includegraphics[width=\columnwidth]{figs/teaser}}{\fbox{\parbox{0.9\columnwidth}{\centering\vspace{2em}[figure pending]\vspace{2em}}}}
+\caption{One \textsc{LexFlip} item. Replacing \emph{doit} with \emph{peut}
+turns a duty into a discretion and leaves the sentence otherwise untouched, so a
+metric reading legal meaning must drop and one reading overlap cannot. The
+judge's ten-point rating is rescaled to $[0,1]$, as in
+Table~\ref{tab:challenge}. Over the whole set the edit costs BERTScore
+\simMarginLo\ of its own identical-to-unrelated range and the judge
+\judgeMargin, against \maxMargin\ for bidirectional NLI.}
+\label{fig:teaser}
+\end{figure}
 
 \section{Introduction}
 \label{sec:intro}
@@ -123,9 +139,10 @@ If simplified legal text is produced automatically, an automatic metric is what
 checks it. Two checks are in current use \citep{beauchemin2023meaningbert,
 beauchemin2025judgebert}: a sentence paired with itself must receive the maximum
 score, and a sentence paired with an unrelated one the minimum. Both are
-necessary and both are easy to state. But moving from an identical pair to an unrelated pair changes lexical
-overlap and legal meaning \emph{together}, in the same direction, at the same
-time, so any monotone function of token overlap satisfies both by construction.
+necessary and both are easy to state. But moving from an identical pair to an
+unrelated pair changes lexical overlap and legal meaning \emph{together}, in the
+same direction, at the same time, so any monotone function of token overlap
+satisfies both by construction.
 The checks test calibration at two endpoints; they do not test what the metric
 is reading.
 
@@ -133,12 +150,13 @@ The remedy is a \emph{dissociation}: an item on which the two confounded
 variables are pulled apart, so that legal force changes while surface form does
 not. Replace \emph{doit} (must) with \emph{peut} (may) and ninety-odd percent of
 the tokens are untouched, the sentence stays fluent and statutory in register,
-and an obligation has become a permission. A metric that measures legal meaning
-must drop sharply; a metric that measures overlap cannot. We release
-\textsc{LegalEdit}, \numedits\ such perturbations of Quebec statutory French,
+and an obligation has become a permission (Figure~\ref{fig:teaser}). A metric
+that measures legal meaning must drop sharply; a metric that measures overlap
+cannot. We release
+\textsc{LexFlip}, \numedits\ such perturbations of Quebec statutory French,
 with a harness taking an arbitrary scoring function so that untrained metrics,
 regressors and prompted judges take the same
-test,\footnote{\url{https://github.com/Nyvora-Vision-Labs/LEGALEDIT}} and a
+test,\footnote{\url{https://github.com/Nyvora-Vision-Labs/LEXFLIP}} and a
 four-part validation protocol around it.
 
 \paragraph{Related work.}
@@ -205,14 +223,14 @@ moving a thousandth of its range.
 
 \begin{table*}[tb]\centering\footnotesize
 \input{tables/challenge}
-\caption{\textsc{LegalEdit}, min--max normalised per metric. \emph{discrim.} is
+\caption{\textsc{LexFlip}, min--max normalised per metric. \emph{discrim.} is
 the share of items ranked correctly (identical $>$ edited), \emph{margin} the
 fraction of the identical-to-unrelated range spent on the legal edit.}
 \label{tab:challenge}
 \end{table*}
 
-\section{\textsc{LegalEdit}}
-\label{sec:legaledit}
+\section{\textsc{LexFlip}}
+\label{sec:lexflip}
 
 Source sentences come from two Quebec statutes held out from every corpus used
 here, the Automobile Insurance Act and the Highway Safety Code, and
@@ -224,8 +242,8 @@ bound, what is covered or how much: modality (\emph{doit} $\leftrightarrow$
 polarity (dropping \emph{ne \dots pas}), quantum ($\times 10$), scope
 (\emph{tous les} $\rightarrow$ \emph{certains}) and temporal (\emph{avant}
 $\leftrightarrow$ \emph{apr\`es}); \emph{tier 2} connective and class shifts are
-reported separately. The diagnostic would fail if a metric could find the edited item by
-noticing that it reads badly, so perturbations introducing a grammatical
+reported separately. The diagnostic would fail if a metric could find the edited
+item by noticing that it reads badly, so perturbations introducing a grammatical
 artefact are filtered by a conservative French well-formedness check that flags
 none of the $400$ unmodified sources. The result is \numedits\ pairs
 (\numeditsTierOne\ tier 1) with mean token Jaccard \meanjaccard, none below
@@ -244,8 +262,11 @@ $o \Rightarrow s$ signals hallucination and of $s \Rightarrow o$ omission, the
 two dominant categories of the legal error taxonomy. We add token Jaccard and
 the surface features of R3.
 
-\section{Diagnostic Results: Two Families}
+\section{Results}
 \label{sec:results}
+
+\subsection{The Diagnostic}
+\label{sec:diagnostic}
 
 Every \emph{similarity}-based metric fails, and fails almost completely
 (Table~\ref{tab:challenge}). The seven embedding and BERTScore variants spend
@@ -290,7 +311,7 @@ current use, RMSE$_{\text{cal}}$ the isotonic map of R2.}
 \label{tab:baselines}
 \end{table*}
 
-\section{The Protocol on \textsc{FrJudge}}
+\subsection{The \textsc{FrJudge} Corpus}
 \label{sec:casestudy}
 
 The diagnostic answers R4. We run the other three on \textsc{FrJudge}
@@ -341,7 +362,7 @@ with \texttt{deepseek-chat} under the \textsc{FrJudge} scale, a ten-point
 judgment deducting one point per identified legal error, in its own request so
 the judge never sees the probe condition, $K=5$ times. Under R2 it
 reaches $r=\judgeR_{\pm\judgeRsd}$, above the length feature and our ceiling (a
-redraw gave $\repRcalTwo$). On \textsc{LegalEdit} it scores the identical pair
+redraw gave $\repRcalTwo$). On \textsc{LexFlip} it scores the identical pair
 at $\judgeIdent$ and the unrelated pair at $\judgeUnrel$, flawless on the two
 checks jointly satisfiable by overlap, then awards a clause whose legal force
 has been reversed $\judgeEdit$ out of ten, a margin of $\judgeMargin$. The
@@ -369,7 +390,7 @@ Figure~\ref{fig:dissociation} is the finding.
 
 A metric claiming to measure legal meaning should therefore report three checks,
 not two: identical pairs (saturation), unrelated pairs (bottoming out), and
-\textsc{LegalEdit} (does it move when, and only when, the law moves?). The first
+\textsc{LexFlip} (does it move when, and only when, the law moves?). The first
 two are jointly satisfiable by lexical overlap; the third is not, so a low
 margin is a fixable deficiency rather than a limit of automatic evaluation. Only
 legal sensitivity resists calibration: rank on it, and build the next metric on
@@ -378,37 +399,30 @@ a repaired entailment objective.
 \section*{Limitations}
 \label{sec:limits}
 
-Our \textsc{LegalEdit} labels are definitional rather than annotated: we assert
-that changing \emph{doit} to \emph{peut} changes legal meaning, rather than
-having lawyers rate each perturbation. We think this is defensible for tier-1
-edits and report tier-2 shifts separately, but a human-validated version would
-be stronger and a small expert study is the obvious next step. The perturbations
-are also single-edit and template-generated, so a system could in principle be
-tuned to them without acquiring general legal sensitivity, which is why we treat
-\textsc{LegalEdit} as a necessary condition and not a benchmark to be optimised.
+Our \textsc{LexFlip} labels are definitional rather than annotated: we assert
+that replacing \emph{doit} with \emph{peut} changes legal meaning rather than
+having lawyers rate each perturbation. That is defensible for tier-1 edits, reported
+separately from tier 2, but a small expert study would be stronger. The edits
+are single and template-generated, so a system could be tuned to them without
+acquiring general legal sensitivity, which is why the diagnostic is a necessary
+condition and not a benchmark to optimise.
 
-That caveat bears on our most encouraging result. Our perturbations are largely
-negation, modality, quantifier and antonym contrasts, close to the inventory
-natural language inference training data is built around, so bidirectional NLI's
-margin of $\maxMargin$ may reflect familiarity with the \emph{form} of our edits
-rather than sensitivity to their legal consequence. \citet{yang2026compared} put
-the general version: any counterfactual edit is a compound treatment bundling
-the variable of interest with incidental surface variation, and belongs to the
-target factor only once compared against a meaning-preserving paraphrase
-baseline. Our margin is normalised against each metric's own range and the
-identical probe is a null-edit anchor, but we run no paraphrase-control arm. The
-objection bites on bidirectional NLI, and the next version of the diagnostic
-should carry legally inert paraphrases alongside the decisive edits.
+The same caveat bears on our best result. Our perturbations are largely
+negation, modality, quantifier and antonym contrasts, close to what NLI
+training data is built around, so bidirectional NLI's margin of $\maxMargin$ may
+reflect familiarity with their \emph{form} rather than sensitivity to their
+legal consequence. \citet{yang2026compared} give the general version: a
+counterfactual edit isolates the variable of interest only against a
+meaning-preserving paraphrase control, which we do not run and the next version
+of the diagnostic should carry.
 
-Three further limits. The diagnostic and the corpus comparison run on different
-text, insurance forms against two statutes, so they answer different questions
-and should not be read as one ranking. Our judge results rest on one model from
-one vendor under a rubric reconstructed from the published description rather
-than the annotators' instructions, which given how far $\promptMarginRange$ of
-margin turns on wording is a load-bearing assumption. And we evaluate isolated
-clauses from a single generator, with the ceiling computed on all 297 items
-while model correlations run on $\testN$-item splits, so ``model $>$ ceiling''
-should be read with the sampling uncertainty of both in view.
+Finally, the diagnostic and the corpus comparison run on different text,
+insurance forms against two statutes, and answer different questions; the judge
+results rest on one model under a rubric reconstructed from the published
+description, a load-bearing assumption given that wording alone moves the margin
+by $\promptMarginRange$; and the ceiling is computed on all 297 items while model
+correlations run on $\testN$-item splits, so ``model $>$ ceiling'' carries the
+sampling uncertainty of both.
 
 \section*{Ethical Considerations}
 \label{sec:ethics}
@@ -425,9 +439,20 @@ human review, rather than certification. Nothing here constitutes legal advice.
 The perturbed sentences are deliberate misstatements of Quebec law, labelled as
 such in the distribution, and are not statements of the law.
 
+\section*{Copyright}
+\label{sec:copyright}
+
+The conference papers are copyrighted by the publishing house.
+
+\section*{Disclosure Policy}
+\label{sec:disclosure}
+
+The authors declare that there is no conflict of interest regarding the
+publication of this paper.
+
 % References begin on their own page, after the Limitations and Ethics
 % sections.
 \newpage
-\bibliography{refs}
+\input{bib_main}
 
 \end{document}

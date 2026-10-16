@@ -15,7 +15,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import load_pairs, ANNOTATORS
 from splits import make_split, SEEDS
-from augment import legal_edits, unrelated_pairs, tier, _sents
+from augment import lexflip_edits, unrelated_pairs, tier, _sents
 import stats_utils as su
 import llm_judge as J
 from sklearn.isotonic import IsotonicRegression
@@ -33,7 +33,7 @@ H = np.array([[p["ratings"][a] for a in ANNOTATORS] for p in P], float)
 ref = _sents("A-25.jsonl") + _sents("code_securite_routiere.jsonl")
 rng = np.random.default_rng(7)
 pool = [ref[i] for i in rng.choice(len(ref), size=400, replace=False)]
-ED = legal_edits(pool, seed=7, per_sentence=1)
+ED = lexflip_edits(pool, seed=7, per_sentence=1)
 n = len(ED)
 ALL = ([dict(original=o, simplification=o) for o, _, _ in ED]
        + [dict(original=o, simplification=p) for o, p, _ in ED]
@@ -70,8 +70,8 @@ def summarise(M, E):
         rc.append(su.pearson(iso.predict(jm[t]), y[t]))
     d["r_raw_mean"] = float(np.mean(rr)); d["r_cal_mean"] = float(np.mean(rc))
     i_, e_, u_ = ve[:n], ve[n:2 * n], ve[2 * n:]
-    d["identical"] = float(i_.mean()); d["legaledit"] = float(e_.mean())
-    d["legaledit_t1"] = float(e_[T1].mean()); d["unrelated"] = float(u_.mean())
+    d["identical"] = float(i_.mean()); d["lexflip"] = float(e_.mean())
+    d["lexflip_t1"] = float(e_[T1].mean()); d["unrelated"] = float(u_.mean())
     d["margin_frac"] = float((i_ - e_).mean() / max(1e-9, (i_ - u_).mean()))
     d["margin_frac_t1"] = float((i_[T1] - e_[T1]).mean() / max(1e-9, (i_[T1] - u_[T1]).mean()))
     d["discrim"] = float((i_ > e_).mean())
@@ -92,10 +92,10 @@ FIELDS = [
     ("r_full",             "r vs human mean, full corpus",  "%.3f",  0.03),
     ("r_raw_mean",         "r raw, mean over 10 splits",    "%.3f",  0.03),
     ("r_cal_mean",         "r calibrated, over 10 splits",  "%.3f",  0.03),
-    ("identical",          "LegalEdit: identical probes",   "%.2f",  0.10),
-    ("legaledit",          "LegalEdit: edited probes",      "%.2f",  0.30),
-    ("legaledit_t1",       "LegalEdit: edited, tier 1",     "%.2f",  0.30),
-    ("unrelated",          "LegalEdit: unrelated probes",   "%.2f",  0.15),
+    ("identical",          "LexFlip: identical probes",   "%.2f",  0.10),
+    ("lexflip",          "LexFlip: edited probes",      "%.2f",  0.30),
+    ("lexflip_t1",       "LexFlip: edited, tier 1",     "%.2f",  0.30),
+    ("unrelated",          "LexFlip: unrelated probes",   "%.2f",  0.15),
     ("margin_frac",        "margin fraction",               "%.3f",  0.04),
     ("margin_frac_t1",     "margin fraction, tier 1",       "%.3f",  0.04),
     ("discrim",            "discrimination rate",           "%.3f",  0.04),
@@ -124,7 +124,7 @@ rho_items = float(su.spearman(S1["_jm"][ok1], S2["_jm"][ok1]))
 r_probe = float(su.pearson(S1["_ve"], S2["_ve"]))
 print("\nitem-level agreement between the two runs:")
 print("   FrJudge pairs   r = %.3f   rho = %.3f   (n=%d)" % (r_items, rho_items, ok1.sum()))
-print("   LegalEdit probes r = %.3f                (n=%d)" % (r_probe, len(S1["_ve"])))
+print("   LexFlip probes r = %.3f                (n=%d)" % (r_probe, len(S1["_ve"])))
 rep["item_stability"] = dict(frjudge_r=r_items, frjudge_rho=rho_items, probe_r=r_probe)
 
 # the finding that mattered: the directional modal asymmetry

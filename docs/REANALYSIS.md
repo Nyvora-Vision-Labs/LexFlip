@@ -1,7 +1,7 @@
 # Re-analysis notes: JUDGEBERT / FrJUDGE
 
 These notes hold the material that was removed from the paper
-(`paper/main.tex`) when it was restructured around the **LegalEdit**
+(`paper/main.tex`) when it was restructured around the **LexFlip**
 diagnostic. They are direct comparisons against the numbers reported in
 [Beauchemin et al., EMNLP 2025](https://aclanthology.org/2025.emnlp-main.5/)
 (arXiv:2508.16870v1) and are recorded here rather than in the paper for two
@@ -64,7 +64,7 @@ Retrained under an evaluation that scores only the human-annotated test split:
 |---|---|---|
 | JudgeBERT-Scalar (repro) | 0.542 ± 0.082 | n/a |
 | JudgeBERT-DA | 0.192 ± 0.254 | −0.350, on 5 seeds of 5 |
-| JudgeBERT-DA+LegalEdit | 0.122 | −0.420, on 5 seeds of 5 |
+| JudgeBERT-DA+LexFlip | 0.122 | −0.420, on 5 seeds of 5 |
 
 DA reaches r = −0.188 on one seed. Scored on the human items alone, the
 augmentation costs more than half the correlation rather than adding a fifth.

@@ -4,7 +4,7 @@ The Limitations section names the absence of an LLM judge as the largest gap in
 our comparison: a prompted frontier model given the annotators' own rubric is
 the natural competitor to a fine-tuned 112M encoder. This module supplies one,
 as a plain `pairs -> np.ndarray` scoring function, so it drops into
-`exp2_baselines.py` (corpus correlation) and `exp4_challenge.py` (the LEGALEDIT
+`exp2_baselines.py` (corpus correlation) and `exp4_challenge.py` (the LEXFLIP
 diagnostic) beside every other metric with no change to either harness.
 
 Three properties matter for the experiment to be sound:
@@ -33,6 +33,17 @@ K = int(os.environ.get("JUDGE_K", "5"))
 TEMP = float(os.environ.get("JUDGE_TEMP", "1.0"))
 WORKERS = int(os.environ.get("JUDGE_WORKERS", "12"))
 ENDPOINT = "https://api.deepseek.com/chat/completions"
+
+# Open-weight judges (the second model family) are served by vLLM's
+# OpenAI-compatible server on the cluster and reached through an SSH tunnel.
+# They cost nothing per call, so they bypass the key lookup and the spend guard.
+LOCAL_ENDPOINT = os.environ.get("JUDGE_LOCAL_ENDPOINT",
+                                "http://localhost:8010/v1/chat/completions")
+LOCAL_PREFIXES = ("Qwen/", "meta-llama/")
+
+
+def _is_local(model):
+    return model.startswith(LOCAL_PREFIXES)
 
 # Spend ceiling for a whole run. DeepSeek reports token counts rather than a
 # dollar figure, so cost is derived from PRICES below and the guard is
@@ -167,6 +178,8 @@ PROMPTS = {
 
 # ------------------------------------------------------------------ plumbing --
 def _api_key(model=MODEL):
+    if _is_local(model):
+        return "EMPTY"
     var = "DEEPSEEK_API_KEY"
     k = os.environ.get(var)
     if not k:  # fall back to a .env above src/ so scripts run without sourcing
@@ -196,6 +209,8 @@ _ledger_lock = threading.Lock()
 
 def call_cost(model, usage):
     """Estimated USD for one call from its reported token counts."""
+    if _is_local(model):
+        return 0.0
     miss, hit, out = PRICES.get(model, PRICES["deepseek-reasoner"])
     ph = usage.get("prompt_cache_hit_tokens", 0) or 0
     pm = (usage.get("prompt_tokens", 0) or 0) - ph
@@ -259,7 +274,7 @@ class _Cache:
 
 def _post(key, body, timeout=180):
     req = urllib.request.Request(
-        ENDPOINT, data=json.dumps(body).encode("utf-8"),
+        LOCAL_ENDPOINT if _is_local(body["model"]) else ENDPOINT, data=json.dumps(body).encode("utf-8"),
         headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.load(r)
@@ -298,10 +313,11 @@ def _one(key, cache, sample, pair, model, temp, retries=5, prompt="v1"):
                            "content": PROMPTS[prompt][1].format(**pair)}])
     if model == "deepseek-chat":
         # The chat model supports structured output. The reasoner does not take
-        # the flag the same way, so it relies on the prompt's JSON instruction
-        # plus the tolerant parser instead of failing outright.
+        # the flag the same way, and vLLM's grammar-constrained decoding rejects
+        # Llama-3.3's end-of-message token, so both rely on the prompt's JSON
+        # instruction plus the tolerant parser instead.
         body["response_format"] = {"type": "json_object"}
-    if spend() >= BUDGET_USD:
+    if not _is_local(model) and spend() >= BUDGET_USD:
         raise BudgetExceeded("spent $%.2f of $%.2f" % (spend(), BUDGET_USD))
     delay = 2.0
     for attempt in range(retries):
@@ -319,6 +335,10 @@ def _one(key, cache, sample, pair, model, temp, retries=5, prompt="v1"):
             return rec
         except (urllib.error.HTTPError, urllib.error.URLError, ValueError,
                 KeyError, TimeoutError, OSError) as e:
+            if attempt == retries - 1 and _is_local(model) and not isinstance(e, (ValueError, KeyError)):
+                # A local endpoint that cannot be reached (tunnel or VPN down) is
+                # not a judgment; never cache it, stop the run instead.
+                raise RuntimeError("local judge endpoint unreachable: %s" % e)
             if attempt == retries - 1:
                 rec = dict(h=h, score=None, errors=[], sample=sample, model=model,
                            usage={}, fail=type(e).__name__ + ": " + str(e)[:200])

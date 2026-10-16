@@ -1,0 +1,249 @@
+<title>LexFlip Expert Audit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one item at a time. Statute text on a "gazette" sheet, the four
+   questions in a fixed answer card beside it (stacked on phones), an item
+   rail along the top showing progress. */
+:root{
+  --bg:#eef1f4; --sheet:#ffffff; --ink:#16202b; --muted:#5b6876; --rule:#d5dbe2;
+  --accent:#1d4f91; --accent-ink:#ffffff; --mark-del:#f7d4cf; --mark-ins:#cfe8d6;
+  --done:#2f7d5b; --warn:#a2560b;
+  --f-text:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-ui:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --sheet:#1a222b; --ink:#e7ecf1; --muted:#9aa7b4; --rule:#2c3743;
+  --accent:#7fb0f0; --accent-ink:#0d1a2b; --mark-del:#5a2a25; --mark-ins:#1f4a33;
+  --done:#6cc79c; --warn:#e9a463; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --sheet:#1a222b; --ink:#e7ecf1; --muted:#9aa7b4; --rule:#2c3743;
+  --accent:#7fb0f0; --accent-ink:#0d1a2b; --mark-del:#5a2a25; --mark-ins:#1f4a33;
+  --done:#6cc79c; --warn:#e9a463; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between}
+h1{font-family:var(--f-text);font-weight:600;font-size:1.45rem;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:.9rem}
+.status{font-family:var(--f-mono);font-size:.82rem;color:var(--muted)}
+.status b{color:var(--ink)}
+.rail{display:flex;flex-wrap:wrap;gap:3px}
+.rail button{width:22px;height:22px;border:1px solid var(--rule);background:var(--sheet);color:var(--muted);
+  font-family:var(--f-mono);font-size:.6rem;cursor:pointer;padding:0;border-radius:3px}
+.rail button.done{background:var(--done);border-color:var(--done);color:var(--sheet)}
+.rail button.cur{outline:2px solid var(--accent);outline-offset:1px}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:20px 22px;min-width:0}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.law{font-family:var(--f-text);font-size:.95rem;color:var(--muted);margin-top:2px}
+.sent{font-family:var(--f-text);font-size:1.12rem;line-height:1.6;margin:6px 0 14px}
+.sent del{background:var(--mark-del);text-decoration:line-through;text-decoration-thickness:1px;color:inherit}
+.sent ins{background:var(--mark-ins);text-decoration:none;color:inherit}
+details.art{border-top:1px solid var(--rule);padding-top:10px;margin-top:4px}
+details.art summary{cursor:pointer;color:var(--accent);font-size:.9rem}
+.arttext{font-family:var(--f-text);font-size:.92rem;white-space:pre-wrap;margin-top:8px;max-height:340px;overflow:auto;
+  border-left:3px solid var(--rule);padding-left:12px}
+.card{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+fieldset{border:0;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:6px}
+legend{font-weight:600;margin-bottom:6px;padding:0}
+legend small{display:block;font-weight:400;color:var(--muted);font-size:.84rem}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts label{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:4px;padding:6px 10px;cursor:pointer;
+  background:var(--bg);font-size:.9rem}
+.opts input{accent-color:var(--accent)}
+.opts label:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--sheet))}
+.opts label:has(input:disabled){opacity:.45;cursor:not-allowed}
+textarea,input[type=text],select{width:100%;font:inherit;color:inherit;background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button.btn{font:inherit;font-weight:500;border-radius:4px;padding:9px 16px;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.msg{font-size:.86rem;color:var(--muted)}
+.msg.err{color:var(--warn)}
+.keys{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+.intro{max-width:70ch;display:flex;flex-direction:column;gap:10px}
+.intro p{margin:0}
+.formrow{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>LexFlip Expert Audit</h1>
+      <div class="sub">Loi sur l'assurance automobile et Code de la sécurité routière · 117 items</div>
+    </div>
+    <div class="status" id="status">Connexion…</div>
+  </header>
+
+  <section class="sheet" id="setup" hidden>
+    <div class="intro">
+      <div class="eyebrow">Avant de commencer / Before you start</div>
+      <p>Chaque item montre une phrase d'une loi québécoise et une version modifiée. Lisez la phrase dans le contexte de l'article (définitions, renvois) et répondez aux quatre questions. Il n'y a pas de bonne réponse attendue : certaines modifications changent la portée juridique, d'autres non.</p>
+      <p class="sub">Each item shows a sentence from a Quebec statute and an edited version. Read it in the context of its article and answer four questions. Some edits change the legal effect and some do not. Your answers save as you go, and only you and the study's author can read them.</p>
+      <div class="formrow">
+        <div><label for="role">Votre rôle / Your role</label>
+          <select id="role">
+            <option value="">Choisir…</option>
+            <option value="author">Auteur de l'étude / Study author</option>
+            <option value="qc_jurist">Juriste québécois(e) / Quebec jurist</option>
+            <option value="other_jurist">Autre juriste / Other legal professional</option>
+            <option value="other">Autre / Other</option>
+          </select></div>
+        <div><label for="bg">Formation, années de pratique / Training, years in practice</label>
+          <input type="text" id="bg" placeholder="p. ex. Barreau du Québec, 6 ans"></div>
+      </div>
+      <div class="actions"><button class="btn primary" id="start">Commencer / Start</button><span class="msg" id="setupmsg"></span></div>
+    </div>
+  </section>
+
+  <div class="rail" id="rail" aria-label="Items"></div>
+
+  <div class="grid" id="work" hidden>
+    <article class="sheet">
+      <div class="eyebrow" id="itemid">Q001</div>
+      <div class="law" id="law"></div>
+      <div class="eyebrow" style="margin-top:14px">Phrase originale / Original</div>
+      <div class="sent" id="orig"></div>
+      <div class="eyebrow">Phrase modifiée / Edited</div>
+      <div class="sent" id="edit"></div>
+      <details class="art" id="artbox"><summary>Article complet / Full article</summary><div class="arttext" id="art"></div></details>
+    </article>
+
+    <form class="sheet card" id="form">
+      <fieldset><legend>1. La modification change-t-elle la portée juridique ?<small>Does the edit change the legal effect?</small></legend>
+        <div class="opts">
+          <label><input type="radio" name="q2" value="Oui" id="q2a"> Oui <span class="keys">1</span></label>
+          <label><input type="radio" name="q2" value="Non" id="q2b"> Non <span class="keys">2</span></label>
+          <label><input type="radio" name="q2" value="Incertain" id="q2c"> Incertain <span class="keys">3</span></label>
+        </div></fieldset>
+      <fieldset id="f3"><legend>2. Si oui, de quelle façon ?<small>If yes, how?</small></legend>
+        <div class="opts">
+          <label><input type="radio" name="q3" value="Inverse la règle" id="q3a"> Inverse la règle</label>
+          <label><input type="radio" name="q3" value="Modifie la portée sans l'inverser" id="q3b"> Modifie la portée sans l'inverser</label>
+          <label><input type="radio" name="q3" value="Autre" id="q3c"> Autre</label>
+        </div></fieldset>
+      <fieldset><legend>3. Gravité pour une personne qui se fie au texte modifié<small>Severity for a person relying on the edited text (0 none, 4 decisive)</small></legend>
+        <div class="opts" id="q4opts"></div></fieldset>
+      <fieldset><legend>4. Qualité de la langue de la phrase modifiée<small>Is the edited sentence acceptable statutory French? (1 unacceptable, 5 fully natural)</small></legend>
+        <div class="opts" id="q1opts"></div></fieldset>
+      <fieldset><legend>Commentaire<small>Optional: a defined term or cross-reference that matters</small></legend>
+        <textarea id="comment" rows="2"></textarea></fieldset>
+      <div class="actions">
+        <button type="button" class="btn" id="prev">← Préc.</button>
+        <button type="submit" class="btn primary" id="next">Enregistrer et suivant →</button>
+        <span class="msg" id="msg"></span>
+      </div>
+      <div class="keys" style="margin-top:10px">Clavier : 1/2/3 pour la question 1, Entrée pour enregistrer.</div>
+    </form>
+  </div>
+</div>
+
+<script>
+const ITEMS = __ITEMS__;
+const $ = id => document.getElementById(id);
+let db = null, uid = null, answers = {}, cur = 0, profile = null;
+
+function scale(el, name, lo, hi, prefix){
+  for(let v=lo; v<=hi; v++){
+    const l=document.createElement("label");
+    l.innerHTML=`<input type="radio" name="${name}" value="${v}" id="${prefix}${v}"> ${v}`;
+    el.appendChild(l);
+  }
+}
+scale($("q4opts"),"q4",0,4,"q4_"); scale($("q1opts"),"q1",1,5,"q1_");
+
+// word-level diff so the edited span is visible in both sentences
+function diff(a,b){
+  const A=a.split(/(\s+)/), B=b.split(/(\s+)/), n=A.length, m=B.length;
+  const L=Array.from({length:n+1},()=>new Int32Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)L[i][j]=A[i]===B[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  const oa=[],ob=[]; let i=0,j=0;
+  const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  while(i<n&&j<m){ if(A[i]===B[j]){oa.push(esc(A[i]));ob.push(esc(B[j]));i++;j++}
+    else if(L[i+1][j]>=L[i][j+1]){oa.push(A[i].trim()?`<del>${esc(A[i])}</del>`:esc(A[i]));i++}
+    else{ob.push(B[j].trim()?`<ins>${esc(B[j])}</ins>`:esc(B[j]));j++} }
+  while(i<n){oa.push(A[i].trim()?`<del>${esc(A[i])}</del>`:esc(A[i]));i++}
+  while(j<m){ob.push(B[j].trim()?`<ins>${esc(B[j])}</ins>`:esc(B[j]));j++}
+  return [oa.join(""),ob.join("")];
+}
+
+function rail(){
+  const r=$("rail"); r.innerHTML="";
+  ITEMS.forEach((it,k)=>{const b=document.createElement("button");b.type="button";
+    b.textContent=it.item.slice(1);b.title=it.item;
+    if(answers[it.item]&&answers[it.item].q2)b.classList.add("done"); if(k===cur)b.classList.add("cur");
+    b.onclick=()=>show(k); r.appendChild(b)});
+  const n=Object.values(answers).filter(a=>a&&a.q2).length;
+  $("status").innerHTML=`<b>${n}</b> / ${ITEMS.length} faits`;
+}
+
+function setRadio(name,val){document.querySelectorAll(`input[name=${name}]`).forEach(x=>x.checked=(String(x.value)===String(val)))}
+function getRadio(name){const x=document.querySelector(`input[name=${name}]:checked`);return x?x.value:null}
+function gate(){const yes=getRadio("q2")==="Oui";document.querySelectorAll("input[name=q3]").forEach(x=>{x.disabled=!yes;if(!yes)x.checked=false})}
+
+function show(k){
+  cur=Math.max(0,Math.min(ITEMS.length-1,k)); const it=ITEMS[cur];
+  $("itemid").textContent=`${it.item} · ${cur+1} / ${ITEMS.length}`;
+  $("law").textContent=[it.law,it.article].filter(Boolean).join(", ");
+  const [o,e]=diff(it.original,it.edited); $("orig").innerHTML=o; $("edit").innerHTML=e;
+  $("art").textContent=it.article_text||"(article introuvable / article not found)";
+  $("artbox").open=false;
+  const a=answers[it.item]||{};
+  setRadio("q2",a.q2); setRadio("q3",a.q3); setRadio("q4",a.q4); setRadio("q1",a.q1); $("comment").value=a.comment||"";
+  gate(); $("msg").textContent=""; $("msg").className="msg"; rail();
+  window.scrollTo({top:0,behavior:"auto"});
+}
+
+async function save(){
+  const it=ITEMS[cur];
+  const a={q2:getRadio("q2"),q3:getRadio("q3"),q4:getRadio("q4")===null?null:Number(getRadio("q4")),
+           q1:getRadio("q1")===null?null:Number(getRadio("q1")),comment:$("comment").value.trim()};
+  if(!a.q2){$("msg").textContent="Répondez au moins à la question 1.";$("msg").className="msg err";return false}
+  if(a.q2==="Oui"&&!a.q3){$("msg").textContent="Précisez la question 2.";$("msg").className="msg err";return false}
+  if(a.q4===null||a.q1===null){$("msg").textContent="Répondez aux questions 3 et 4.";$("msg").className="msg err";return false}
+  const prev=answers[it.item];
+  if(prev&&JSON.stringify({...prev,ts:0})===JSON.stringify({...a,ts:0}))return true;
+  a.ts=new Date().toISOString();
+  try{ await db.doc(`audit/${uid}/items/${it.item}`).set(a); answers[it.item]=a; return true }
+  catch(e){ $("msg").textContent="Échec de l'enregistrement ("+(e&&e.code||"erreur")+"). Réessayez.";$("msg").className="msg err"; return false }
+}
+
+$("form").addEventListener("submit",async ev=>{ev.preventDefault(); $("next").disabled=true;
+  if(await save()){ const nxt=ITEMS.findIndex((it,k)=>k>cur&&!(answers[it.item]&&answers[it.item].q2));
+    show(nxt>=0?nxt:Math.min(cur+1,ITEMS.length-1)); $("msg").textContent="Enregistré.";}
+  $("next").disabled=false;});
+$("prev").onclick=()=>show(cur-1);
+document.querySelectorAll("input[name=q2]").forEach(x=>x.addEventListener("change",gate));
+document.addEventListener("keydown",e=>{ if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT"&&e.target.type==="text")return;
+  if(["1","2","3"].includes(e.key)&&!$("work").hidden){setRadio("q2",["Oui","Non","Incertain"][+e.key-1]);gate()} });
+
+$("start").onclick=async()=>{
+  const role=$("role").value, bg=$("bg").value.trim();
+  if(!role){$("setupmsg").textContent="Choisissez votre rôle.";return}
+  profile={role,background:bg,started:new Date().toISOString()};
+  try{ await db.doc(`audit/${uid}`).set(profile) }catch(e){ $("setupmsg").textContent="Échec ("+(e&&e.code||"erreur")+")."; return }
+  begin();
+};
+
+function begin(){ $("setup").hidden=true; $("work").hidden=false;
+  const first=ITEMS.findIndex(it=>!(answers[it.item]&&answers[it.item].q2)); show(first>=0?first:0) }
+
+(async()=>{
+  const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
+  if(!d||!u){ $("status").textContent="Connectez-vous à claude.ai pour enregistrer vos réponses."; return }
+  db=d; uid=await u.id();
+  if(!uid){ $("status").textContent="Connectez-vous pour enregistrer vos réponses."; return }
+  try{
+    const p=await db.doc(`audit/${uid}`).get();
+    const q=await db.collection(`audit/${uid}/items`).get();
+    q.docs.forEach(s=>answers[s.id]=s.data());
+    rail();
+    if(p.exists){profile=p.data(); begin()} else { $("setup").hidden=false; $("status").textContent="0 / "+ITEMS.length+" faits" }
+  }catch(e){ $("status").textContent="Lecture impossible ("+(e&&e.code||"erreur")+")." }
+})();
+</script>
