@@ -21,3 +21,6 @@ __pycache__/
 revision/12050 Review Comments*.xlsx
 revision/Response_to_Reviewers.*
 src/make_response.py
+
+# Resubmission package for manuscript #12050 (contains confidential review text)
+JCLLT_12050_RESUBMISSION/
